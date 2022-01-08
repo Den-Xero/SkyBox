@@ -120,6 +120,24 @@
     <None Include="Data\Shaders\fragment_shader.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Data\Shaders\SkyBox_fragment_shader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\SkyBox_vertex_shader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Terrain_vertex_shader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Terrain_fragment_shader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Cube_fragment_shader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Cube_vertex_shader.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="External\IMGUI\imgui.natvis">

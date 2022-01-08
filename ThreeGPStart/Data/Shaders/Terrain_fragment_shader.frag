@@ -1,27 +1,26 @@
 #version 330
 
-//uniform sampler2D sampler_tex;
+uniform sampler2D TerrainSamplerTex;
 
 uniform vec4 diffuse_colour;
-uniform sampler2D JeepSamplerTex;
 
-in vec2 varyingCoords;
 in vec3 VaryingPosition;
-//vec3 N = normalize(varying_colour);
+in vec3 VaryingNormals;
+in vec2 VaryingCoords;
 
 out vec4 fragment_colour;
 
 void main(void)
 {
+	
 	vec3 LightColour = vec3(1,1,1);
 	float LightRange = 100;
 	float MatShininess = 200;
-	vec3 VaryingNormals = vec3(0,1,0);
 
 	float SpotlightFOV = 1.1;
 	vec3 SpotlightDir = normalize(vec3(0,1,0));
 
-	vec3 MatTexColour = texture(JeepSamplerTex, varyingCoords).rgb;
+	vec3 MatTexColour = texture(TerrainSamplerTex, VaryingCoords).rgb;
 	
 	vec3 MatAmibentColour = MatTexColour;
 	vec3 MatSpecColour = MatTexColour;
@@ -60,4 +59,5 @@ void main(void)
 	vec3 FinalTexColour = (((PointLightIntensity + DirectionLightIntensity + SpotLightIntensity) * MatTexColour + Ambient * Attenuation) * LightColour);
 
 	fragment_colour = vec4(FinalTexColour,1.0);
+	
 }
