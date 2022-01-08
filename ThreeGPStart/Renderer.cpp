@@ -1070,6 +1070,7 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glUseProgram(CubeProgram);
 
 	glm::mat4 Cubemodel_xform = glm::mat4(1);
+	Cubemodel_xform = glm::translate(Cubemodel_xform, glm::vec3{ 1000.0f, 500.0f, 500.0f });
 	// Uncomment all the lines below to rotate cube first round y then round x
 	static float angle = 0;
 	static bool rotateY = true;

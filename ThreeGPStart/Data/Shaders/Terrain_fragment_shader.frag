@@ -29,7 +29,7 @@ void main(void)
 	vec3 N = normalize(VaryingNormals);
 
 	vec3 light_direction = vec3(-0.7, -0.4, 0);
-	vec3 PointLight_Position = vec3 (500, 500, 150);
+	vec3 PointLight_Position = vec3 (1000, 500, 1000);
 	vec3 SpotLightPosition = vec3 (1800,1800,150);
 	vec3 Pointlight_direction = P - PointLight_Position;
 	vec3 SpotlightDirection = P - SpotLightPosition;
