@@ -170,6 +170,7 @@ bool Renderer::CreateCubeProgram()
 
 float Noise(int X, int Y)
 {
+	//makes noise to be used on the terrain.
 	int N = X + Y * 24;
 	N = (N >> 13) ^ N;
 	int NN = (N * (N * N * 60493 + 19990303) + 1376312589) & 0x7fffffff;
@@ -190,6 +191,7 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateCubeProgram())
 		return false;
 
+	//skybox Positions
 	std::vector<GLfloat> SkyBoxVertices = {
 		-10.0f,  10.0f, -10.0f,
 		-10.0f, -10.0f, -10.0f,
@@ -234,12 +236,14 @@ bool Renderer::InitialiseGeometry()
 		 10.0f, -10.0f,  10.0f
 	};
 	
+	//image loaders for the six sides of the cube.
 	Helpers::ImageLoader SkyBoxTexLoaderRight;
 	Helpers::ImageLoader SkyBoxTexLoaderLeft;
 	Helpers::ImageLoader SkyBoxTexLoaderUp;
 	Helpers::ImageLoader SkyBoxTexLoaderDown;
 	Helpers::ImageLoader SkyBoxTexLoaderFront;
 	Helpers::ImageLoader SkyBoxTexLoaderBack;
+	//loads the image on to the image loaders.
 	if (!SkyBoxTexLoaderRight.Load("Data\\Models\\Sky\\Mars\\Mar_R.dds"))
 	{
 		MessageBox(NULL, L"Right not loading", L"Error",
@@ -282,6 +286,7 @@ bool Renderer::InitialiseGeometry()
 
 		return false;
 	}
+	//makes the cube map with the textures on each side.
 	glGenTextures(1, &CubeMap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, SkyBoxTexLoaderRight.Width(), SkyBoxTexLoaderRight.Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, SkyBoxTexLoaderRight.GetData());
@@ -297,7 +302,7 @@ bool Renderer::InitialiseGeometry()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 
-
+	//loads the Positions to be warpped
 	GLuint SkyBoxCoordsVBO;
 	glGenBuffers(1, &SkyBoxCoordsVBO);
 
@@ -308,10 +313,8 @@ bool Renderer::InitialiseGeometry()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-	// TODO: create a VBA to wrap everything and specify locations in the shaders
+	//warps the skybox.
 	glGenVertexArrays(1, &m_SkyBoxVAO);
-
-	glBindVertexArray(0);
 
 	glBindVertexArray(m_SkyBoxVAO);
 
@@ -331,7 +334,6 @@ bool Renderer::InitialiseGeometry()
 	glBindVertexArray(0);
 
 	
-	// Helpers has an object for loading 3D geometry, supports most types
 
 	
 // Load in the jeep
@@ -343,7 +345,7 @@ bool Renderer::InitialiseGeometry()
 
 		return false;
 	}
-
+	//loads jeep texture
 	Helpers::ImageLoader JeepTexLoader;
 	if (JeepTexLoader.Load("Data\\Models\\Jeep\\jeep_army.jpg"))
 	{
@@ -366,13 +368,10 @@ bool Renderer::InitialiseGeometry()
 
 		return false;
 	}
-	// Now we can loop through all the mesh in the loaded model:
+	//loops through all the mesh in the model loader:
 	for (const Helpers::Mesh& mesh : JeepLoader.GetMeshVector())
 	{
-		// We can extract from the mesh via:
-		//mesh.vertices  - a vector of glm::vec3 (3 floats) giving the position of each vertex
-		//mesh.elements - a vector of unsigned int defining which vert make up each triangle
-		// TODO: create VBO for the vertices and a EBO for the elements
+		//loads the Positions to be warpped
 		GLuint PositionsJeepVBO;
 		glGenBuffers(1, &PositionsJeepVBO);
 
@@ -382,7 +381,7 @@ bool Renderer::InitialiseGeometry()
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
+		//loads the UVcoords to be warpped
 		GLuint CoordsJeepVBO;
 		glGenBuffers(1, &CoordsJeepVBO);
 
@@ -392,7 +391,7 @@ bool Renderer::InitialiseGeometry()
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
+		//loads the elements to be warpped
 		GLuint ElementJeepEBO;
 		glGenBuffers(1, &ElementJeepEBO);
 
@@ -402,11 +401,13 @@ bool Renderer::InitialiseGeometry()
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+		//sets the number of point that will need to be drawn
 		m_NumJeepElements = mesh.elements.size();
-		// TODO: create a VBA to wrap everything and specify locations in the shaders
+
+		//warps jeep
 		glGenVertexArrays(1, &m_JeepVAO);
 
-
+		//warps positions
 		glBindVertexArray(m_JeepVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, PositionsJeepVBO);
@@ -421,10 +422,11 @@ bool Renderer::InitialiseGeometry()
 			0,
 			(void*)0
 		);
+		//warps elements
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementJeepEBO);
 
 		glBindVertexArray(0);
-
+		//warps UVcoords
 		glBindVertexArray(m_JeepVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, CoordsJeepVBO);
@@ -445,6 +447,7 @@ bool Renderer::InitialiseGeometry()
 
 	glBindVertexArray(0);
 	
+	//cube Positions
 	glm::vec3 FrontCubeCorners[4] =
 	{
 
@@ -505,6 +508,7 @@ bool Renderer::InitialiseGeometry()
 
 	};
 
+	//cube colours
 	std::vector<GLfloat> Colours =
 	{
 		0.0f, 1.0f, 0.0f,
@@ -533,7 +537,7 @@ bool Renderer::InitialiseGeometry()
 		1.0f, 1.0f, 0.0f
 
 	};
-
+	//puts cube corners in order to be drawn
 	std::vector<glm::vec3> Verts;
 	Verts.push_back(FrontCubeCorners[0]);//0
 	Verts.push_back(FrontCubeCorners[1]);//1
@@ -561,7 +565,7 @@ bool Renderer::InitialiseGeometry()
 	Verts.push_back(BottomCubeCorners[3]);//23
 
 
-
+	//puts the corners into the element
 	std::vector<GLuint> Elements;
 	Elements.push_back(0);
 	Elements.push_back(1);
@@ -615,6 +619,7 @@ bool Renderer::InitialiseGeometry()
 		You can look back to last week for examples
 	*/
 
+	//loads the Positions to be warpped
 	GLuint PositionsVBO;
 	glGenBuffers(1, &PositionsVBO);
 
@@ -623,7 +628,7 @@ bool Renderer::InitialiseGeometry()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * Verts.size(), Verts.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+	//loads the colour to be warpped
 	GLuint ColourVBO;
 	glGenBuffers(1, &ColourVBO);
 
@@ -633,12 +638,7 @@ bool Renderer::InitialiseGeometry()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-	/*
-		TODO 3: You also need to create an element buffer
-		Store the number of elements in the member variable m_numElements
-	*/
-
+	//loads the elements to be warpped
 	GLuint ElementEBO;
 	glGenBuffers(1, &ElementEBO);
 
@@ -650,15 +650,11 @@ bool Renderer::InitialiseGeometry()
 
 	m_numCubeElements = Elements.size();
 
-	/*
-		TODO 4: Finally create a VAO to wrap the buffers. You need to specify the streams for the positions
-		(attribute 0) and colours (attribute 1). You also need to bind the element buffer.
-		Use the member variable m_VAO
-	*/
-
+	
+	//wraps cube
 	glGenVertexArrays(1, &m_CubeVAO);
 
-
+	//warps cube position
 	glBindVertexArray(m_CubeVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, PositionsVBO);
@@ -673,12 +669,13 @@ bool Renderer::InitialiseGeometry()
 		0,
 		(void*)0
 	);
+	//warps cube elements
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementEBO);
 
 	glBindVertexArray(0);
 
 
-
+	//warps cube colour
 	glBindVertexArray(m_CubeVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, ColourVBO);
@@ -715,7 +712,7 @@ bool Renderer::InitialiseGeometry()
 	int NumVertX = NumCellX + 1;
 	int NumVertZ = NumCellZ + 1;
 
-
+	//terrains hightmap
 	Helpers::ImageLoader HightmapTexLoader;
 	if (HightmapTexLoader.Load("Data\\Heightmaps\\UE4.jpg"))
 	{
@@ -754,7 +751,7 @@ bool Renderer::InitialiseGeometry()
 		}
 	}
 
-
+	//places terrain in diamond pattern
 	for (size_t CellZ = 0; CellZ < NumCellZ; CellZ++)
 	{
 		for (size_t CellX = 0; CellX < NumCellX; CellX++)
@@ -791,7 +788,7 @@ bool Renderer::InitialiseGeometry()
 
 
 
-
+	//effects the terrain with noise when needed
 	if (NoiseOn)
 	{
 		for (size_t i = 0; i < NumVertZ; i++)
@@ -815,7 +812,7 @@ bool Renderer::InitialiseGeometry()
 			}
 		}
 	}
-
+	//terrain normals
 	for (glm::vec3& n : Normals)
 		n = glm::vec3(0, 0, 0);
 
@@ -838,7 +835,7 @@ bool Renderer::InitialiseGeometry()
 
 	for (glm::vec3& n : Normals)
 		glm::normalize(n);
-
+	//Terrain texture loader
 	Helpers::ImageLoader TexLoader;
 	if (TexLoader.Load("Data\\Textures\\dirt_earth-n-moss_df_.dds"))
 	{
@@ -861,11 +858,8 @@ bool Renderer::InitialiseGeometry()
 		return false;
 	}
 
-	/*
-		TODO 2: Next you need to create VBOs for the vertices and the colours
-		You can look back to last week for examples
-	*/
 
+	//loads the Positions to be warpped
 	GLuint TerrainPositionsVBO;
 	glGenBuffers(1, &TerrainPositionsVBO);
 
@@ -875,7 +869,7 @@ bool Renderer::InitialiseGeometry()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
+	//loads the UVcoords to be warpped
 	GLuint TerrainCoordsVBO;
 	glGenBuffers(1, &TerrainCoordsVBO);
 
@@ -885,6 +879,7 @@ bool Renderer::InitialiseGeometry()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	//loads the normals to be warpped
 	GLuint NormalsVBO;
 	glGenBuffers(1, &NormalsVBO);
 
@@ -894,12 +889,7 @@ bool Renderer::InitialiseGeometry()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-	/*
-		TODO 3: You also need to create an element buffer
-		Store the number of elements in the member variable m_numElements
-	*/
-
+	//loads the elements to be warpped
 	GLuint TerrainElementEBO;
 	glGenBuffers(1, &TerrainElementEBO);
 
@@ -911,15 +901,11 @@ bool Renderer::InitialiseGeometry()
 
 	m_numTerrainElements = TerrainElements.size();
 
-	/*
-		TODO 4: Finally create a VAO to wrap the buffers. You need to specify the streams for the positions
-		(attribute 0) and colours (attribute 1). You also need to bind the element buffer.
-		Use the member variable m_VAO
-	*/
+
 
 	glGenVertexArrays(1, &m_TerrainVAO);
 
-
+	//warps positions
 	glBindVertexArray(m_TerrainVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, TerrainPositionsVBO);
@@ -934,11 +920,12 @@ bool Renderer::InitialiseGeometry()
 		0,
 		(void*)0
 	);
+	//warps elements
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TerrainElementEBO);
 
 	glBindVertexArray(0);
 
-
+	//warps UVcoords
 	glBindVertexArray(m_TerrainVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, TerrainCoordsVBO);
@@ -955,7 +942,7 @@ bool Renderer::InitialiseGeometry()
 	);
 
 	glBindVertexArray(0);
-
+	//warps normals
 	glBindVertexArray(m_TerrainVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, NormalsVBO);
@@ -973,37 +960,12 @@ bool Renderer::InitialiseGeometry()
 
 	glBindVertexArray(0);
 
-
-	/*
-		TODO 3: You also need to create an element buffer
-		Store the number of elements in the member variable m_numElements
-	*/
-
-	
-
-	/*
-		TODO 4: Finally create a VAO to wrap the buffers. You need to specify the streams for the positions
-		(attribute 0) and colours (attribute 1). You also need to bind the element buffer.
-		Use the member variable m_VAO
-	*/
-
-	
-
-	/*
-		TODO 5: Run it and see if you can see the cube.
-		You should not have to edit the render function or shaders to see the cube.
-	*/
-
 	return true;
 }
 
 // Render the scene. Passed the delta time since last called.
 void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 {			
-	// Configure pipeline settings
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
 	// Wireframe mode controlled by ImGui
 	if (m_wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1011,7 +973,6 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Clear buffers from previous frame
-	glClearColor(0.0f, 0.0f, 0.0f, 0.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Compute viewport and projection matrix
@@ -1034,9 +995,9 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	GLuint Skycombined_xform_id = glGetUniformLocation(SkyBox_program, "combined_xform2");
 	glUniformMatrix4fv(Skycombined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform2));
 
-	glm::mat4 Skymodel_xform = glm::mat4(1);
+	glm::mat4 model_xform = glm::mat4(1);
 	GLuint Skymodel_xform_id = glGetUniformLocation(SkyBox_program, "model_xform");
-	glUniformMatrix4fv(Skymodel_xform_id, 1, GL_FALSE, glm::value_ptr(Skymodel_xform));
+	glUniformMatrix4fv(Skymodel_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
 
 	GLuint SkyboxUniformID = glGetUniformLocation(SkyBox_program, "skybox");
 
@@ -1056,31 +1017,45 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	GLuint Jeepcombined_xform_id = glGetUniformLocation(m_program, "Jeepcombined_xform");
 	glUniformMatrix4fv(Jeepcombined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
 
-	glm::mat4 Jeepmodel_xform = glm::mat4(1);
+
 	GLuint Jeepmodel_xform_id = glGetUniformLocation(m_program, "Jeepmodel_xform");
-	glUniformMatrix4fv(Jeepmodel_xform_id, 1, GL_FALSE, glm::value_ptr(Jeepmodel_xform));
+	glUniformMatrix4fv(Jeepmodel_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, JeepTex);
 	glUniform1i(glGetUniformLocation(m_program, "JeepSamplerTex"), 0);
 	glBindVertexArray(m_JeepVAO);
 	glDrawElements(GL_TRIANGLES, m_NumJeepElements, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
+
+	//Terrain program
+	glUseProgram(TerrainProgram);
+
+	GLuint Terraincombined_xform_id = glGetUniformLocation(TerrainProgram, "Terraincombined_xform");
+	glUniformMatrix4fv(Terraincombined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
+
+	GLuint Terrainmodel_xform_id = glGetUniformLocation(TerrainProgram, "Terrainmodel_xform");
+	glUniformMatrix4fv(Terrainmodel_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, TerrainTex);
+	glUniform1i(glGetUniformLocation(TerrainProgram, "TerrainSamplerTex"), 0);
+	glBindVertexArray(m_TerrainVAO);
+	glDrawElements(GL_TRIANGLES, m_numTerrainElements, GL_UNSIGNED_INT, (void*)0);
+	glBindVertexArray(0);
 	
 	//Cube program
 	glUseProgram(CubeProgram);
 
-	glm::mat4 Cubemodel_xform = glm::mat4(1);
-	Cubemodel_xform = glm::translate(Cubemodel_xform, glm::vec3{ 1000.0f, 500.0f, 500.0f });
+	model_xform = glm::translate(model_xform, glm::vec3{ 1000.0f, 500.0f, 500.0f });
 	// Uncomment all the lines below to rotate cube first round y then round x
 	static float angle = 0;
 	static bool rotateY = true;
 
 	if (rotateY) // Rotate around y axis		
-		Cubemodel_xform = glm::rotate(Cubemodel_xform, angle, glm::vec3{ 0 ,1,0 });
+		model_xform = glm::rotate(model_xform, angle, glm::vec3{ 0 ,1,0 });
 	else // Rotate around x axis		
-		Cubemodel_xform = glm::rotate(Cubemodel_xform, angle, glm::vec3{ 1 ,0,0 });
+		model_xform = glm::rotate(model_xform, angle, glm::vec3{ 1 ,0,0 });
 
-	angle += 0.05f;
+	angle += 0.0025f;
 	if (angle > glm::two_pi<float>())
 	{
 		angle = 0;
@@ -1091,26 +1066,13 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glUniformMatrix4fv(Cubecombined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
 
 	GLuint Cubemodel_xform_id = glGetUniformLocation(CubeProgram, "Cubemodel_xform");
-	glUniformMatrix4fv(Cubemodel_xform_id, 1, GL_FALSE, glm::value_ptr(Cubemodel_xform));
+	glUniformMatrix4fv(Cubemodel_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
 	
 	glBindVertexArray(m_CubeVAO);
 	glDrawElements(GL_TRIANGLES, m_numCubeElements, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
 
-	//Terrain program
-	glUseProgram(TerrainProgram);
-
-	GLuint Terraincombined_xform_id = glGetUniformLocation(TerrainProgram, "Terraincombined_xform");
-	glUniformMatrix4fv(Terraincombined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
-	glm::mat4 Terrainmodel_xform = glm::mat4(1);
-	GLuint Terrainmodel_xform_id = glGetUniformLocation(TerrainProgram, "Terrainmodel_xform");
-	glUniformMatrix4fv(Terrainmodel_xform_id, 1, GL_FALSE, glm::value_ptr(Terrainmodel_xform));
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, TerrainTex);
-	glUniform1i(glGetUniformLocation(TerrainProgram, "TerrainSamplerTex"), 0);
-	glBindVertexArray(m_TerrainVAO);
-	glDrawElements(GL_TRIANGLES, m_numTerrainElements, GL_UNSIGNED_INT, (void*)0);
-	glBindVertexArray(0);
+	
 
 }
 
